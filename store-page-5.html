@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digital Centrale — Shop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #FAF7F4;
+      --surface:    #EFE8DF;
+      --card:       #FFFFFF;
+      --border:     #D8C9B8;
+      --border-mid: #BFA98E;
+      --brown:      #7A5C2E;
+      --brown-deep: #5C4220;
+      --gold:       #B5820A;
+      --gold-lt:    #D4A020;
+      --dark:       #1A0F05;
+      --text:       #2C1F0E;
+      --muted:      #6B5135;
+      --dim:        #9A7E62;
+      --white:      #FFFFFF;
+      --green:      #2E7230;
+      --green-bg:   #E0F2E0;
+      --purple:     #5C3D99;
+      --purple-bg:  #EDE8F8;
+      --teal:       #1F7070;
+      --teal-bg:    #DFF0F0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* soft grain */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
+    }
+
+    /* warm glow orbs */
+    .orb { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(rgba(201,151,58,0.08), transparent); top: -200px; right: -150px; }
+    .orb-2 { width: 500px; height: 500px; background: radial-gradient(rgba(139,111,71,0.06), transparent); bottom: 0px; left: -150px; }
+    .orb-3 { width: 350px; height: 350px; background: radial-gradient(rgba(201,151,58,0.05), transparent); top: 50%; left: 30%; }
+
+    /* ── LAYOUT ── */
+    .page { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: 0 16px 100px; }
+
+    /* ══════════════════════════════
+       HERO BANNER
+    ══════════════════════════════ */
+    .hero-banner {
+      width: calc(100% + 32px);
+      margin-left: -16px;
+      height: 240px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center top;
+      filter: brightness(0.55) saturate(0.85);
+    }
+
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(20,10,0,0.3), rgba(20,10,0,0.75));
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding-bottom: 28px; text-align: center;
+    }
+
+    .hero-tagline {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(24px, 6vw, 32px);
+      font-weight: 600; color: #FFFFFF;
+      line-height: 1.2; margin-bottom: 8px;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.9);
+    }
+
+    .hero-tagline em { font-style: italic; color: #FFD980; }
+
+    .hero-sub {
+      font-size: 12px; color: #FFFFFF;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+      font-weight: 500;
+    }
+
+    /* ══════════════════════════════
+       PROFILE
+    ══════════════════════════════ */
+    .profile {
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+
+    .logo-wrap {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--border-mid);
+      background: var(--white);
+      margin: -40px auto 14px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(139,111,71,0.12), 0 0 0 4px var(--bg);
+      position: relative; z-index: 2;
+    }
+
+    .logo-wrap img { width: 64px; height: 64px; object-fit: contain; }
+
+    .profile-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 600; color: #1A0F05; margin-bottom: 4px;
+    }
+
+    .profile-handle { font-size: 12px; color: #7A5C2E; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.04em; }
+
+    .profile-bio {
+      font-size: 13px; font-weight: 400; color: #4A3520;
+      line-height: 1.75; max-width: 320px; margin: 0 auto 18px;
+    }
+
+    .profile-socials { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+
+    .social-pill {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--brown);
+      padding: 5px 14px; border-radius: 100px;
+      border: 1px solid var(--border-mid);
+      text-decoration: none; transition: all 0.2s;
+      background: var(--white);
+    }
+    .social-pill:hover { background: var(--brown); color: var(--white); border-color: var(--brown); }
+
+    /* ══════════════════════════════
+       SECTION DIVIDERS
+    ══════════════════════════════ */
+    .section-divider {
+      display: flex; align-items: center; gap: 10px;
+      margin: 32px 0 16px;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.24em;
+      text-transform: uppercase; color: #7A5C2E; white-space: nowrap;
+    }
+
+    /* ══════════════════════════════
+       FREEBIE CARD
+    ══════════════════════════════ */
+    .freebie-card {
+      background: var(--green-bg);
+      border: 1px solid rgba(74,139,74,0.2);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      display: flex; gap: 14px; align-items: center;
+      text-decoration: none; color: inherit;
+      transition: all 0.22s ease;
+      position: relative; overflow: hidden;
+    }
+
+    .freebie-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--green);
+      transform: scaleY(0); transform-origin: center;
+      transition: transform 0.25s;
+    }
+
+    .freebie-card:hover { box-shadow: 0 6px 24px rgba(74,139,74,0.12); transform: translateY(-2px); border-color: rgba(74,139,74,0.35); }
+    .freebie-card:hover::before { transform: scaleY(1); }
+
+    .freebie-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(74,139,74,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--green);
+      flex-shrink: 0;
+    }
+
+    .freebie-body { flex: 1; }
+    .freebie-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #2E7230;
+      display: block; margin-bottom: 3px;
+    }
+    .freebie-title { font-size: 14px; font-weight: 600; color: #1A0F05; margin-bottom: 3px; line-height: 1.3; }
+    .freebie-desc  { font-size: 12px; font-weight: 400; color: #4A3520; line-height: 1.55; }
+
+    .freebie-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex-shrink: 0; }
+    .tag-free { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; background: var(--green-bg); color: var(--green); border: 1px solid rgba(74,139,74,0.25); }
+    .freebie-arrow { font-size: 14px; color: var(--dim); transition: transform 0.2s, color 0.2s; }
+    .freebie-card:hover .freebie-arrow { transform: translateX(3px); color: var(--green); }
+
+    /* ══════════════════════════════
+       BUNDLE CARD — FEATURED ($47)
+    ══════════════════════════════ */
+    .bundle-featured {
+      background: var(--dark);
+      border: 1px solid rgba(201,151,58,0.25);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .bundle-featured::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .bundle-featured-body { padding: 24px 22px 26px; }
+
+    .bundle-badge {
+      display: inline-block;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--gold);
+      border: 1px solid rgba(201,151,58,0.35);
+      padding: 4px 12px; border-radius: 100px;
+      margin-bottom: 14px;
+    }
+
+    .bundle-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; gap: 12px; margin-bottom: 10px;
+    }
+
+    .bundle-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 300; color: var(--white); line-height: 1.2;
+    }
+    .bundle-name em { font-style: italic; color: var(--gold); }
+
+    .bundle-price-block { text-align: right; flex-shrink: 0; }
+    .bundle-price-block strong { display: block; font-size: 30px; font-weight: 700; color: var(--gold); line-height: 1; }
+    .bundle-price-block s { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+    .bundle-desc {
+      font-size: 12px; color: rgba(255,255,255,0.55);
+      font-weight: 300; line-height: 1.7; margin-bottom: 16px;
+    }
+
+    /* included items list */
+    .bundle-includes {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .bundle-include-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+    }
+
+    .bundle-include-check {
+      font-size: 12px; color: var(--gold); font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+
+    .bundle-include-text {
+      font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 400; line-height: 1.4;
+    }
+
+    .bundle-include-text span {
+      display: block; font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 300; margin-top: 2px;
+    }
+
+    .btn-gold {
+      display: block; text-align: center;
+      background: var(--gold); color: var(--dark);
+      font-size: 14px; font-weight: 700;
+      padding: 14px; border-radius: 100px;
+      text-decoration: none; transition: all 0.22s;
+    }
+    .btn-gold:hover { background: var(--gold-lt); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,151,58,0.25); }
+
+    .bundle-save { text-align: center; margin-top: 8px; font-size: 11px; color: rgba(255,255,255,0.3); }
+
+    /* ══════════════════════════════
+       BUNDLE CARD — STANDARD ($27)
+    ══════════════════════════════ */
+    .bundle-standard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      position: relative;
+      box-shadow: 0 2px 16px rgba(139,111,71,0.06);
+    }
+
+    .bundle-standard::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brown), transparent);
+    }
+
+    .bundle-standard-body { padding: 24px 22px 26px; }
+
+    .bundle-standard-badge {
+      display: inline-block;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--brown);
+      border: 1px solid var(--border-mid);
+      padding: 4px 12px; border-radius: 100px;
+      margin-bottom: 14px;
+      background: var(--surface);
+    }
+
+    .bundle-standard-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 400; color: #1A0F05; line-height: 1.2;
+    }
+    .bundle-standard-name em { font-style: italic; color: #7A5C2E; }
+
+    .bundle-standard-price strong { display: block; font-size: 30px; font-weight: 700; color: #7A5C2E; line-height: 1; }
+    .bundle-standard-price s { font-size: 11px; color: #9A7E62; }
+
+    .bundle-standard-desc {
+      font-size: 13px; color: #4A3520;
+      font-weight: 400; line-height: 1.7; margin-bottom: 16px;
+    }
+
+    .bundle-standard-includes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+    .bundle-standard-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .bundle-standard-check { font-size: 12px; color: var(--brown); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    .bundle-standard-text { font-size: 13px; color: #2C1F0E; font-weight: 500; line-height: 1.4; }
+    .bundle-standard-text span { display: block; font-size: 11px; color: #6B5135; font-weight: 400; margin-top: 2px; }
+
+    .btn-brown {
+      display: block; text-align: center;
+      background: var(--brown); color: var(--white);
+      font-size: 14px; font-weight: 700;
+      padding: 14px; border-radius: 100px;
+      text-decoration: none; transition: all 0.22s;
+    }
+    .btn-brown:hover { background: var(--brown-deep); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(139,111,71,0.2); }
+
+    .bundle-standard-save { text-align: center; margin-top: 8px; font-size: 11px; color: var(--dim); }
+
+    /* ══════════════════════════════
+       AFFILIATE CARD
+    ══════════════════════════════ */
+    .aff-card {
+      background: var(--purple-bg);
+      border: 1px solid rgba(123,94,167,0.18);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      display: flex; gap: 14px; align-items: center;
+      text-decoration: none; color: inherit;
+      transition: all 0.22s ease;
+      position: relative; overflow: hidden;
+    }
+    .aff-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--purple);
+      transform: scaleY(0); transform-origin: center;
+      transition: transform 0.25s;
+    }
+    .aff-card:hover { box-shadow: 0 6px 24px rgba(123,94,167,0.1); transform: translateY(-2px); border-color: rgba(123,94,167,0.3); }
+    .aff-card:hover::before { transform: scaleY(1); }
+
+    .aff-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: rgba(123,94,167,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--purple); flex-shrink: 0;
+    }
+
+    .aff-body { flex: 1; }
+    .aff-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #5C3D99; display: block; margin-bottom: 3px;
+    }
+    .aff-title { font-size: 14px; font-weight: 600; color: #1A0F05; margin-bottom: 3px; }
+    .aff-desc  { font-size: 12px; font-weight: 400; color: #4A3520; line-height: 1.55; }
+
+    .aff-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex-shrink: 0; }
+    .tag-commission { font-size: 10px; font-weight: 600; color: var(--purple); background: rgba(123,94,167,0.1); border: 1px solid rgba(123,94,167,0.2); padding: 3px 10px; border-radius: 100px; }
+    .aff-arrow { font-size: 14px; color: var(--dim); transition: transform 0.2s, color 0.2s; }
+    .aff-card:hover .aff-arrow { transform: translateX(3px); color: var(--purple); }
+
+    /* ══════════════════════════════
+       ABOUT SECTION
+    ══════════════════════════════ */
+    .about-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px 22px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 16px rgba(139,111,71,0.05);
+    }
+
+    .about-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--brown);
+      display: block; margin-bottom: 10px;
+    }
+
+    .about-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 300; color: var(--dark);
+      line-height: 1.2; margin-bottom: 12px;
+    }
+    .about-title em { font-style: italic; color: var(--brown); }
+
+    .about-text {
+      font-size: 13px; font-weight: 400; color: #4A3520;
+      line-height: 1.85; margin-bottom: 18px;
+    }
+    .about-text strong { color: #1A0F05; font-weight: 600; }
+
+    /* ══════════════════════════════
+       EMAIL SIGNUP
+    ══════════════════════════════ */
+    .email-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 22px;
+      margin-bottom: 10px;
+      text-align: center;
+      position: relative; overflow: hidden;
+      box-shadow: 0 2px 16px rgba(139,111,71,0.05);
+    }
+
+    .email-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brown), transparent);
+    }
+
+    .email-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 300; color: var(--dark);
+      line-height: 1.25; margin-bottom: 8px;
+    }
+    .email-title em { font-style: italic; color: var(--brown); }
+
+    .email-desc {
+      font-size: 12px; color: var(--muted); font-weight: 300;
+      line-height: 1.7; margin-bottom: 20px;
+    }
+
+    .email-form { display: flex; flex-direction: column; gap: 10px; }
+
+    .email-input {
+      width: 100%;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 12px 20px;
+      font-size: 13px; color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      outline: none; transition: border-color 0.2s;
+    }
+    .email-input::placeholder { color: var(--dim); }
+    .email-input:focus { border-color: var(--brown); }
+
+    .email-btn {
+      background: var(--brown); color: var(--white);
+      border: none; border-radius: 100px;
+      padding: 13px; font-size: 14px; font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .email-btn:hover { background: var(--brown-deep); transform: translateY(-1px); }
+
+    .email-note { font-size: 11px; color: var(--dim); margin-top: 8px; }
+
+    /* ══════════════════════════════
+       FAQ
+    ══════════════════════════════ */
+    .faq-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 16px rgba(139,111,71,0.05);
+    }
+
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; }
+
+    .faq-q {
+      width: 100%; padding: 16px 20px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 600; color: #1A0F05;
+      text-align: left; transition: background 0.2s;
+    }
+    .faq-q:hover { background: var(--surface); }
+
+    .faq-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--brown); flex-shrink: 0;
+      transition: all 0.25s; font-weight: 300;
+    }
+
+    .faq-item.open .faq-icon { background: var(--brown); color: var(--white); transform: rotate(45deg); }
+
+    .faq-a {
+      font-size: 13px; font-weight: 400; color: #4A3520;
+      line-height: 1.8; padding: 0 20px 16px;
+      display: none;
+    }
+
+    .faq-item.open .faq-a { display: block; }
+
+    /* ══════════════════════════════
+       CONTACT
+    ══════════════════════════════ */
+    .contact-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 16px rgba(139,111,71,0.05);
+    }
+
+    .contact-label {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--brown);
+      display: block; margin-bottom: 10px;
+    }
+
+    .contact-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 400; color: #1A0F05;
+      margin-bottom: 14px; line-height: 1.25;
+    }
+
+    .contact-links { display: flex; flex-direction: column; gap: 8px; }
+
+    .contact-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      text-decoration: none; color: var(--muted);
+      font-size: 13px; font-weight: 400; transition: all 0.2s;
+    }
+    .contact-link:hover { border-color: var(--border-mid); color: var(--text); }
+
+    .contact-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--warm); display: flex; align-items: center;
+      justify-content: center; font-size: 13px; flex-shrink: 0;
+      color: var(--brown);
+    }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    .store-footer {
+      text-align: center; margin-top: 48px;
+      padding-top: 24px; border-top: 1px solid var(--border);
+    }
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-style: italic;
+      color: var(--brown); margin-bottom: 8px;
+    }
+    .store-footer p { font-size: 11px; color: var(--dim); line-height: 1.7; }
+    .store-footer a { color: var(--muted); text-decoration: none; }
+    .store-footer a:hover { color: var(--brown); }
+
+    /* ══════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile   { animation: fadeUp 0.5s ease 0.1s both; }
+    .freebie-card { animation: fadeUp 0.5s ease both; }
+    .bundle-featured  { animation: fadeUp 0.5s ease 0.05s both; }
+    .bundle-standard  { animation: fadeUp 0.5s ease 0.1s both; }
+
+    @media (max-width: 380px) {
+      .bundle-featured-body, .bundle-standard-body { padding: 20px 16px 22px; }
+      .email-card { padding: 22px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="page">
+
+  <!-- ════════════════════════════════
+       HERO BANNER
+       ✏️ hero.jpg uploads to GitHub alongside index.html
+  ════════════════════════════════ -->
+  <div class="hero-banner">
+    <img src="https://krv2026.github.io/DigitalCentrale-store/hero.png" alt="Digital Centrale"/>
+    <div class="hero-overlay">
+      <h1 class="hero-tagline">Build your income,<br><em>on your own terms.</em></h1>
+      <div class="hero-sub">Digital resources for 9-to-5 women</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════
+       PROFILE
+       ✏️ Update handle and bio
+  ════════════════════════════════ -->
+  <div class="profile">
+    <div class="logo-wrap">
+      <img src="https://krv2026.github.io/DigitalCentrale-store/logo.png" alt="Digital Centrale Logo"/>
+    </div>
+    <div class="profile-name">Digital Centrale</div>
+    <div class="profile-handle">@digitalcentrale</div>
+    <div class="profile-bio">
+      Helping 9-to-5 women build digital income using AI tools — no experience, no face, no burnout.
+    </div>
+    <div class="profile-socials">
+      <a href="#" class="social-pill">Instagram</a>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       FREE RESOURCES
+  ════════════════════════════════ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">Start Here — Free</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- Freebie 1 -->
+  <a href="#" class="freebie-card">
+    <!-- ✏️ Replace # with your freebie 1 download link -->
+    <div class="freebie-icon">RR</div>
+    <div class="freebie-body">
+      <span class="freebie-label">Free Download</span>
+      <div class="freebie-title">Resilience Revolution Starter Guide</div>
+      <div class="freebie-desc">Stress management, productivity habits and mindset resets for busy professionals</div>
+    </div>
+    <div class="freebie-meta">
+      <span class="tag-free">Free</span>
+      <span class="freebie-arrow">&#8594;</span>
+    </div>
+  </a>
+
+  <!-- Freebie 2 -->
+  <a href="#" class="freebie-card">
+    <!-- ✏️ Replace # with your freebie 2 download link | Update title & desc -->
+    <div class="freebie-icon">F2</div>
+    <div class="freebie-body">
+      <span class="freebie-label">Free Download</span>
+      <div class="freebie-title">Your Second Freebie Title Here</div>
+      <div class="freebie-desc">A short description of what this free resource covers and who it helps</div>
+    </div>
+    <div class="freebie-meta">
+      <span class="tag-free">Free</span>
+      <span class="freebie-arrow">&#8594;</span>
+    </div>
+  </a>
+
+
+
+
+
+  <!-- ════════════════════════════════
+       BUNDLES
+  ════════════════════════════════ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">Shop — Bundles</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- ── BUNDLE 1 — $27 STARTER (shown first) ── -->
+  <div class="bundle-standard">
+    <div class="bundle-standard-body">
+      <div class="bundle-standard-badge">Starter Bundle</div>
+      <div class="bundle-top">
+        <div class="bundle-standard-name">Digital Creator<br><em>Starter Pack</em></div>
+        <div class="bundle-standard-price">
+          <strong>$27</strong>
+          <s>$81 value</s>
+        </div>
+      </div>
+      <div class="bundle-standard-desc">
+        Everything you need to launch your content and start selling digital products — built for complete beginners.
+      </div>
+      <div class="bundle-standard-includes">
+        <div class="bundle-standard-item">
+          <div class="bundle-standard-check">&#10003;</div>
+          <div class="bundle-standard-text">
+            Digital Product Launchpad
+            <span>Step-by-step guide to creating and selling your first digital product</span>
+          </div>
+        </div>
+        <div class="bundle-standard-item">
+          <div class="bundle-standard-check">&#10003;</div>
+          <div class="bundle-standard-text">
+            20 Reel Scripts
+            <span>Done-for-you scripts for faceless Reels that stop the scroll</span>
+          </div>
+        </div>
+        <div class="bundle-standard-item">
+          <div class="bundle-standard-check">&#10003;</div>
+          <div class="bundle-standard-text">
+            20 Hook Templates
+            <span>Proven scroll-stopping openers for Reels, carousels and captions</span>
+          </div>
+        </div>
+      </div>
+      <!-- ✏️ Replace # with your $27 bundle Beacons checkout link -->
+      <a href="#" class="btn-brown">Get the Starter Pack &#8594;</a>
+      <div class="bundle-standard-save">3 resources · instant download</div>
+    </div>
+  </div>
+
+  <!-- ── BUNDLE 2 — $47 COMPLETE (featured) ── -->
+  <div class="bundle-featured">
+    <div class="bundle-featured-body">
+      <div class="bundle-badge">Most Popular — Best Value</div>
+      <div class="bundle-top">
+        <div class="bundle-name">Complete Digital<br><em>Marketing Bundle</em></div>
+        <div class="bundle-price-block">
+          <strong>$47</strong>
+          <s>$135 value</s>
+        </div>
+      </div>
+      <div class="bundle-desc">
+        The full system — mindset, marketing, Instagram growth, content planning and AI tools. Everything to go from zero to your first sale.
+      </div>
+      <div class="bundle-includes">
+        <div class="bundle-include-item">
+          <div class="bundle-include-check">&#10003;</div>
+          <div class="bundle-include-text">
+            Resilience Revolution
+            <span>Mindset, stress management and productivity for busy professionals</span>
+          </div>
+        </div>
+        <div class="bundle-include-item">
+          <div class="bundle-include-check">&#10003;</div>
+          <div class="bundle-include-text">
+            Faceless Digital Marketing Starter Kit
+            <span>Launch your faceless brand — no face, no followers needed</span>
+          </div>
+        </div>
+        <div class="bundle-include-item">
+          <div class="bundle-include-check">&#10003;</div>
+          <div class="bundle-include-text">
+            Instagram Mastery Guide
+            <span>Grow, engage and convert with ManyChat DM automation</span>
+          </div>
+        </div>
+        <div class="bundle-include-item">
+          <div class="bundle-include-check">&#10003;</div>
+          <div class="bundle-include-text">
+            30-Day Content Calendar
+            <span>A full month of content planned and ready to batch</span>
+          </div>
+        </div>
+        <div class="bundle-include-item">
+          <div class="bundle-include-check">&#10003;</div>
+          <div class="bundle-include-text">
+            AI Content Creation Playbook
+            <span>Create weeks of content in hours using AI tools</span>
+          </div>
+        </div>
+      </div>
+      <!-- ✏️ Replace # with your $47 bundle Beacons checkout link -->
+      <a href="#" class="btn-gold">Get Everything &#8212; $47 &#8594;</a>
+      <div class="bundle-save">You save $88 vs buying separately</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       AFFILIATE PRODUCTS
+       ✏️ Update names, descriptions, commission %, links
+  ════════════════════════════════ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">Tools I Recommend</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <p style="font-size:11px; color:var(--dim); text-align:center; margin-bottom:12px; line-height:1.6;">
+    Tools I personally use and love. Some links may be affiliate links.
+  </p>
+
+  <a href="#" class="aff-card">
+    <div class="aff-icon">A1</div>
+    <div class="aff-body">
+      <span class="aff-label">Recommended Tool</span>
+      <div class="aff-title">Affiliate Product Name Here</div>
+      <div class="aff-desc">Why you use it, what it does and who it is perfect for</div>
+    </div>
+    <div class="aff-meta">
+      <span class="tag-commission">XX%</span>
+      <span class="aff-arrow">&#8594;</span>
+    </div>
+  </a>
+
+  <a href="#" class="aff-card">
+    <div class="aff-icon">A2</div>
+    <div class="aff-body">
+      <span class="aff-label">Recommended Tool</span>
+      <div class="aff-title">Affiliate Product Name Here</div>
+      <div class="aff-desc">Why you use it, what it does and who it is perfect for</div>
+    </div>
+    <div class="aff-meta">
+      <span class="tag-commission">XX%</span>
+      <span class="aff-arrow">&#8594;</span>
+    </div>
+  </a>
+
+
+  <!-- ════════════════════════════════
+       ABOUT
+       ✏️ Update with your real story
+  ════════════════════════════════ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">My Story</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="about-card">
+    <span class="about-label">A little about me</span>
+    <div class="about-title">Hey, I'm <em>the founder</em><br>of Digital Centrale.</div>
+    <div class="about-text">
+      I'm a <strong>full-time 9-to-5 professional</strong> who started building a digital product business from scratch — with no audience, no experience, and no idea where to begin.<br><br>
+      I know what it's like to come home exhausted and still feel that pull toward something more. That's exactly why I created these resources — <strong>built for women who are doing it all</strong>, one step at a time.<br><br>
+      Everything I sell is something I wish I'd had when I was starting out. 🤎
+    </div>
+    <a href="#" class="social-pill" style="display:inline-block;">Follow my journey &#8594;</a>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       FAQ
+  ════════════════════════════════ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">Frequently Asked Questions</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="faq-card">
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Do I need experience to use these resources?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">Not at all. Every resource is designed with complete beginners in mind. Whether you have never posted on Instagram or have never made a single sale yet, everything here will meet you exactly where you are.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        How are the products delivered?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">Instantly. As soon as your payment is confirmed you will receive access to your digital downloads. No waiting, no shipping — everything is yours to access immediately.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Do I need to show my face?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">Absolutely not. Everything here is built around the faceless content creator model. You can build a profitable digital brand and income without ever appearing on camera.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        I work full time — will I have time for this?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">Yes — this was built specifically for people in your situation. All the strategies, scripts and tools are designed to work in the small pockets of time you actually have, not require a full schedule overhaul.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        What is the difference between the two bundles?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">The $27 Starter Pack is focused on content creation — you get the Digital Product Launchpad, 20 Reel Scripts and 20 Hook Templates to get you posting and selling fast. The $47 Complete Bundle includes five full guides covering mindset, marketing strategy, Instagram growth, content planning and AI tools — it is the complete system.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        Can I get a refund?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">Due to the digital nature of these products, all sales are final. If you have any issues accessing your purchase please reach out and I will make sure you are taken care of.</div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        I have a question not listed here — how do I contact you?
+        <div class="faq-icon">+</div>
+      </button>
+      <div class="faq-a">You can reach me anytime via Instagram DM or email. I am always happy to help and will get back to you as soon as possible.</div>
+    </div>
+
+  </div>
+
+
+  <!-- ════════════════════════════════
+       CONTACT
+       ✏️ Update email and handle
+  ════════════════════════════════ -->
+  <div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-text">Get in Touch</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="contact-card">
+    <span class="contact-label">Contact</span>
+    <div class="contact-title">Have a question? I would love to hear from you.</div>
+    <div class="contact-links">
+      <a href="/cdn-cgi/l/email-protection#234b464f4f4c63474a444a57424f40464d5751424f460d404c4e" class="contact-link">
+        <div class="contact-icon">&#9993;</div>
+        <span class="__cf_email__" data-cfemail="573f323b3b3817333e303e23363b3432392325363b327934383a">[email&#160;protected]</span>
+      </a>
+      <a href="#" class="contact-link">
+        <div class="contact-icon">&#9654;</div>
+        Instagram DM &#8212; @digitalcentrale
+      </a>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       FOOTER
+  ════════════════════════════════ -->
+  <div class="store-footer">
+    <div class="footer-brand">Digital Centrale</div>
+    <p>
+      <a href="/cdn-cgi/l/email-protection#99f1fcf5f5f6d9fdf0fef0edf8f5fafcf7edebf8f5fcb7faf6f4"><span class="__cf_email__" data-cfemail="d9b1bcb5b5b699bdb0beb0adb8b5babcb7adabb8b5bcf7bab6b4">[email&#160;protected]</span></a>
+      &nbsp;&#183;&nbsp;
+      <a href="#">@digitalcentrale</a>
+    </p>
+    <p style="margin-top:6px;">&#169; 2026 Digital Centrale &#183; All rights reserved</p>
+  </div>
+
+</div>
+
+<script>
+  function toggleFaq(btn) {
+    const item = btn.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+
+</body>
+</html>
